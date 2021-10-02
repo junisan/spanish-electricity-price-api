@@ -1,0 +1,43 @@
+version: "3.5"
+
+networks:
+  luz:
+
+volumes:
+  influx:
+  chronograf:
+
+services:
+  node:
+    build:
+      context: .
+#      target: build
+#    entrypoint: /bin/sh
+#    command: "-c \"while true; do sleep infinity; done\""
+    env_file: .env
+    ports:
+      - "3000:3000"
+
+  influxdb:
+    image: influxdb:1.8-alpine
+    env_file: docker/influx/influx.env
+    healthcheck:
+      test: "wget --quiet --tries=1 --spider http://localhost:8086/health || exit 1"
+      interval: 30s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "8086:8086"
+    networks:
+      - luz
+    volumes:
+      - influx:/var/lib/influxdb:rw
+
+  chronograf:
+    image: chronograf:1.8-alpine
+    volumes:
+      - chronograf:/var/lib/chronograf
+    ports:
+      - "8888:8888"
+    networks:
+      - luz
