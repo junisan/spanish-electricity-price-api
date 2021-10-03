@@ -3,7 +3,8 @@ import {InfluxDB} from "influx";
 import {Expression} from "influx/lib/src/builder";
 import {config} from 'dotenv';
 import fastify from "fastify";
-import HighchartsFormatter from "./component/influx/HighchartsFormatter";
+
+import api from "./api/api";
 
 config()
 
@@ -13,17 +14,9 @@ const influxManager = new InfluxManager(influx, process.env.INFLUX_DDBB, Express
 const server = fastify()
 
 server.decorate('influxManager', influxManager)
+server.register(api, {prefix: '/api'})
 
-server.get('/ping', async (request, reply) => {
-    const from = new Date(2021,9,1)
-    const to = new Date(2021,9,1, 23)
-    const data = await server['influxManager'].getHistorical(from, to)
-
-    const formatter = new HighchartsFormatter()
-    return formatter.format(data)
-})
-
-server.listen(8080, (err, address) => {
+server.listen(3000, (err, address) => {
     if (err) {
         console.error(err)
         process.exit(1)
