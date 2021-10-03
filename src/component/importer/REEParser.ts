@@ -24,6 +24,13 @@ class REEParser
         return result.PVPC.map((line: REEResultItem) => this.parseLine(line))
     }
 
+    protected roundNumber(number: number, decimals: number = 4): number
+    {
+        const multiplier = Math.pow(10, decimals);
+        const n = parseFloat((number * multiplier).toFixed(11));
+        return Math.round(n) / multiplier
+    }
+
     public parseLine(line:REEResultItem): REEParsedResult
     {
         const dayParts = line.Dia.split('/')
@@ -40,9 +47,8 @@ class REEParser
             date: date,
             priceMW: price,
             priceCYMMW: priceCYM,
-            priceKW: price/100,
-            priceCYMKW: priceCYM/100,
-
+            priceKW: this.roundNumber(price/100),
+            priceCYMKW: this.roundNumber(priceCYM/100),
         }
     }
 }
